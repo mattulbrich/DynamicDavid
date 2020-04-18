@@ -1,0 +1,3 @@
+assume a -> b -> a as Ax1
+assume (a -> (b -> c)) -> (a->b) -> (a->c) as Ax2
+assume (-a -> -b) -> (b -> a) as Ax3

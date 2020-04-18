@@ -1,0 +1,33 @@
+load "axioms" unless Ax1
+
+thm a -> -a -> b as Ax4
+proof
+  inst Ax1 with a=-a, b=-b 
+  pop from #1 
+  inst Ax3 with a=b, b=a
+  mp #2 and #3 
+  pop from #4
+  push -a from #5
+  push a from #6 as goal
+end
+
+thm -a -> a -> b as Ax4b
+proof
+  pop from Ax4
+  pop from #1
+  push a from #2
+  push -a from #3 as goal
+end
+
+thm (-a -> a) -> a as Ax5
+proof
+  load "self" unless self
+  inst Ax2 with a=-a, b=a, c=-(a->a)
+  inst Ax4b with b=-(a->a)
+  mp #1 and #2
+  pop from #3
+  inst Ax3 with b=a->a
+  mp #4 and #5
+  mp #6 and self
+  push -a -> a from #7 as goal
+end

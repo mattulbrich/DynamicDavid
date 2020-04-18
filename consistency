@@ -1,0 +1,21 @@
+load "axioms2"
+
+assume M -> -F -> G as A1a
+pop from A1a as A1b
+pop from A1b as A1
+
+assume M -> -F -> -G as A2a
+pop from A2a as A2b
+pop from A2b as A2
+
+thm M -> F as Consistent
+proof
+  inst Ax3 with a=F,b=G
+  mp #1 and A2b
+  mp #2 and A1
+  push -F from #3
+  inst Ax5 with a=F,b=G
+  mp #4 and #5
+  push M from #6 as goal
+end
+  
