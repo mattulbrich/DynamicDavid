@@ -17,50 +17,73 @@ command :
   | push
   | pop
   | mp
+  | gen
   | assume
   | controls
   ;
 
 controls :
-    'facts' # Facts
-  | 'fact' id=(ID|FORMULA_ID) # Fact
+    'facts' # ShowFacts
+  | 'fact' id=(ID|FORMULA_ID) ( 'with' proof='proof' )?  # ShowFact
   | 'quit' # Quit
-  | 'clear' ( all='all' )? # Clear
+  | 'help' ( name=ID )? # Help
+  | 'clear' ( name=ID )? # Clear
   | 'load' STRING_LIT ( 'unless' ID )? # Load
+  | 'set' name=ID '=' value=(ID|STRING_LIT) # Set
   ;
 
 
 instantiate :
-  'inst' id=ID
-  ( 'with' vars+=ID '=' exps+=formula ( ',' vars+=ID '=' exps+=formula )* )?
-  ( 'as' name=ID )?
+  'inst' id=(ID | FORMULA_ID)
+  'with'
+     ( vars+=ID '=' exps+=formula | 'program' progvars+=ID '=' progs+=program)
+     ( ','
+       ( vars+=ID '=' exps+=formula | 'program' progvars+=ID '=' progs+=program)
+     )*
+  ( 'obtain' obtain=fact )?
+  ( 'as' name=(ID | FORMULA_ID) )?
   ;
 
 push :
-  'push' formula 'from' id=(ID | FORMULA_ID)
-  ( 'as' name=ID )?
+  'push' form=formula 'from' id=(ID | FORMULA_ID)
+  ( 'obtain' obtain=fact )?
+  ( 'as' name=(ID | FORMULA_ID) )?
   ;
 
 pop :
   'pop' 'from' id=(ID | FORMULA_ID)
-  ( 'as' name=ID )?
+  ( 'obtain' obtain=fact )?
+  ( 'as' name=(ID | FORMULA_ID) )?
   ;
 
 mp :
   'mp' first=(ID | FORMULA_ID) 'and' second=(ID | FORMULA_ID)
-  ( 'as' name=ID )?
+  ( 'obtain' obtain=fact )?
+  ( 'as' name=(ID | FORMULA_ID) )?
+  ;
+
+gen :
+  'gen' id=(ID | FORMULA_ID) ( 'with' program )?
+  ( 'obtain' obtain=fact )?
+  ( 'as' name=(ID | FORMULA_ID) )?
   ;
 
 theorem :
-  'thm' formula 'as' name=ID
+  'thm' (fact | formula) 'as' name=(ID | FORMULA_ID)
   'proof'
   command*
   'end'
   ;
 
 assume :
-  'assume' formula ( 'as' name=ID )?
+  'assume' formula ( 'as' name=(ID | FORMULA_ID) )?
   ;
+
+fact :
+    ( premiss+=formula
+      ( ',' premiss+=formula )*
+    )? '|-' concl=formula
+    ;
 
 formula :
     ID   #Id
@@ -73,9 +96,9 @@ formula :
 
 program :
     ID #Atomic
-  | program ';' program #Seq
+  | fst=program ';' snd=program #Seq
   | program '*' #Kleene
-  | program '+' program #Choice
+  | fst=program '+' snd=program #Choice
   | '?' formula #Test
   | '(' program ')' #ParenProgram
   ;

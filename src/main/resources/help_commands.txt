@@ -1,0 +1,37 @@
+
+You can obtain help for the available commands by calling "help <commandName>."
+(Not all commands have a help page.)
+
+Control:
+   help <subtopic>     -- These help pages
+   quit                -- quit Dynamic David
+   clear all           -- forget all known facts
+   clear               -- forget all temporary facts (#1, #2, ...)
+   clear <name>        -- forget a fact by name
+   load "<filename>"   -- read the file and interpret it
+   facts               -- show all known facts
+   fact <name>         -- show a particular fact
+
+Proof Control:
+
+   assume <formula> [ as <name> ]
+      -- axiomatically introduce a new formula to the set of known facts.
+
+   inst <id> with <var>=<formula> [ , <var>=<formula> , ... ] [ as <name> ]
+      -- instantiate a known formula by substituting prop. variables
+
+   mp <id> with <id> [ as <name> ]
+      -- do modus ponens with two facts
+
+   gen <id> [ as <name> ]
+      -- generalise a fact
+
+   pop from <id> [ as <name> ]
+      -- apply the Deduction Theorem on a fact
+
+   push <formula> from <id> [ as <name> ]
+      -- apply the Deduction Theorem in reverse direction on a fact
+
+   thm <formula> as <name>
+   proof <commands> end
+      -- conduct a proof for a formula in a localised namespace

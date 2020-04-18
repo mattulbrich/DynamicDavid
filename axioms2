@@ -2,13 +2,20 @@ load "axioms" unless Ax1
 
 thm a -> -a -> b as Ax4
 proof
-  inst Ax1 with a=-a, b=-b 
-  pop from #1 
+  inst Ax1 with a=-a, b=-b
+    obtain |- -a -> -b -> -a as #1
+  pop from #1
+    obtain -a |- -b -> -a as #2
   inst Ax3 with a=b, b=a
-  mp #2 and #3 
+    obtain |- (-b -> -a) -> a -> b as #3
+  mp #2 and #3
+    obtain -a |- a -> b as #4
   pop from #4
+    obtain -a, a |- b as #5
   push -a from #5
-  push a from #6 as goal
+    obtain a |- -a -> b as #6
+  push a from #6
+    obtain |- a -> -a -> b as goal
 end
 
 thm -a -> a -> b as Ax4b
@@ -22,12 +29,31 @@ end
 thm (-a -> a) -> a as Ax5
 proof
   load "self" unless self
-  inst Ax2 with a=-a, b=a, c=-(a->a)
-  inst Ax4b with b=-(a->a)
-  mp #1 and #2
-  pop from #3
-  inst Ax3 with b=a->a
-  mp #4 and #5
-  mp #6 and self
-  push -a -> a from #7 as goal
+
+  inst Ax2 with a=-a, b=a, c=-(a -> a)
+    obtain  |- (-a -> a -> -(a -> a)) -> (-a -> a) -> -a -> -(a -> a) as A1
+
+  inst Ax4b with b = -(a -> a)
+    obtain  |- -a -> a -> -(a -> a) as A2
+
+  mp A1 and A2
+    obtain  |- (-a -> a) -> -a -> -(a -> a) as A3
+
+  pop from A3
+    obtain -a -> a |- -a -> -(a -> a) as A4
+
+  inst Ax3 with b = a -> a
+    obtain  |- (-a -> -(a -> a)) -> (a -> a) -> a as A5
+
+  mp A4 and A5
+    obtain -a -> a |- (a -> a) -> a as A6
+
+  push a from self
+    obtain |- a -> a as A7
+
+  mp A6 and A7
+    obtain -a -> a |- a as A8
+    
+  push -a -> a from A8
+    obtain  |- (-a -> a) -> a as goal
 end

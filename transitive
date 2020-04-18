@@ -1,0 +1,12 @@
+thm (a->b) -> (b->c) -> (a->c) as Trans
+proof
+  load "self" unless self
+  inst self with a=a->b
+  inst self with a=b->c
+  inst self with a=a
+  mp #1 and #3
+  mp #2 and #4
+  push a from #5
+  push b->c from #6
+  push a->b from #7 as goal
+end

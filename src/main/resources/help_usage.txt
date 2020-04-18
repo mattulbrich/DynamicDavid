@@ -1,0 +1,10 @@
+Dynamic David is a command line tool. You conduct proofs by issuing proof commands.
+If you do it interactively, you must terminate your input with "." to tell the
+interpreter that you want it to work on your input.
+
+You can also provide a text file as argument to the program, its content is
+then interpreted.
+
+The state of the proof interpreter is a map from identifiers to known "facts".
+A fact is a statement of the form M |- phi for a (finite) set of formulas
+M and a formula phi

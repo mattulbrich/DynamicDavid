@@ -1,0 +1,124 @@
+thm (S1 -> [moveS] -S1) , (S1 -> [moveO] S1)
+    |- S1 -> [moveO ; moveS]-S1
+ as Hanoi1
+
+proof
+
+  load "axiomsPDL" unless K
+  load "self" unless self
+  load "transitive" unless Trans
+
+  inst self with a=S1->[moveS]-S1
+    obtain S1 -> [moveS]-S1 |- S1 -> [moveS]-S1 as #2
+
+  inst SeqIntro with p=-S1, program A=moveO, program B=moveS
+    obtain  |- [moveO][moveS]-S1 -> [moveO ; moveS]-S1 as #4
+    
+  gen #2 with moveO
+    obtain S1 -> [moveS]-S1 |- [moveO](S1 -> [moveS]-S1) as #5
+    
+  inst K with p=S1, q=[moveS]-S1, program A=moveO
+    obtain  |- [moveO](S1 -> [moveS]-S1) -> [moveO]S1 -> [moveO][moveS]-S1 as #6
+    
+  mp #6 and #5
+    obtain S1 -> [moveS]-S1 |- [moveO]S1 -> [moveO][moveS]-S1 as #7
+
+  inst Trans with a=S1, b=[moveO]S1, c=[moveO][moveS]-S1
+    obtain  |- (S1 -> [moveO]S1) -> ([moveO]S1 -> [moveO][moveS]-S1) -> S1 -> [moveO][moveS]-S1 as #8
+    
+  pop from #8
+    obtain S1 -> [moveO]S1 |- ([moveO]S1 -> [moveO][moveS]-S1) -> S1 -> [moveO][moveS]-S1 as #9
+  
+  mp #9 and #7
+    obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |- S1 -> [moveO][moveS]-S1 as #10
+  
+  inst Trans with a=S1, b=[moveO][moveS]-S1, c=[moveO ; moveS]-S1
+    obtain  |- (S1 -> [moveO][moveS]-S1) -> ([moveO][moveS]-S1 -> [moveO ; moveS]-S1) -> S1 -> [moveO ; moveS]-S1 as #11
+    
+  mp #11 and #10
+    obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |- ([moveO][moveS]-S1 -> [moveO ; moveS]-S1) -> S1 -> [moveO ; moveS]-S1 as #12
+    
+  mp #12 and #4
+    obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |- S1 -> [moveO ; moveS]-S1 as goal
+end
+
+thm (S1 -> [moveS] -S1) , (S1 -> [moveO] S1)
+  |- S1 -> [moveO* ; moveS]-S1
+ as Hanoi2
+
+proof
+   load "axiomsPDL" unless K
+   load "self" unless self
+   load "transitive" unless Trans
+
+   thm (a->b->c) -> (b->a->c) as swapArgs
+   proof
+     load "self" unless self
+     inst self with a=a->b->c
+     pop from #1
+     pop from #2
+     push a from #3
+     push b from #4
+     push a->b->c from #5 as goal
+   end
+
+   inst swapArgs with a=p, b=[A*](p -> [A]p), c=[A*]p
+      obtain  |- (p -> [A*](p -> [A]p) -> [A*]p) ->
+                 [A*](p -> [A]p) -> p -> [A*]p as #1
+     
+   mp #1 and Ind
+     obtain  |- [A*](p -> [A]p) -> p -> [A*]p as Ind2
+
+   inst self with a = S1 -> [moveO]S1
+     obtain S1 -> [moveO]S1 |- S1 -> [moveO]S1 as #2
+     
+   gen #2 with moveO*
+     obtain S1 -> [moveO]S1 |- [moveO*](S1 -> [moveO]S1) as #3
+     
+   inst Ind2 with program A=moveO, p=S1
+     obtain  |- [moveO*](S1 -> [moveO]S1) -> S1 -> [moveO*]S1 as #4
+   
+   mp #4 and #3
+     obtain S1 -> [moveO]S1 |- S1 -> [moveO*]S1 as IndMoveO 
+
+   inst self with a=S1 -> [moveS]-S1
+     obtain S1->[moveS]-S1 |- S1->[moveS]-S1 as #6
+     
+   gen #6 with moveO*
+     obtain S1->[moveS]-S1 |- [moveO*](S1->[moveS]-S1) as #7
+
+   inst K with program A = moveO*, p=S1, q=[moveS]-S1
+     obtain |- [moveO*](S1 -> [moveS]-S1) ->
+               [moveO*]S1 -> [moveO*][moveS]-S1 as #8
+               
+   mp #7 and #8
+     obtain S1 -> [moveS]-S1 |- [moveO*]S1 -> [moveO*][moveS]-S1 as MoveOS
+
+   inst Trans with a=S1, b=[moveO*]S1, c=[moveO*][moveS]-S1
+     obtain  |- (S1 -> [moveO*]S1) ->
+                ([moveO*]S1 -> [moveO*][moveS]-S1) ->
+                S1 -> [moveO*][moveS]-S1 as #9
+                
+   mp #9 and IndMoveO
+     obtain S1 -> [moveO]S1 |- ([moveO*]S1 -> [moveO*][moveS]-S1) ->
+                               S1 -> [moveO*][moveS]-S1   as #10
+                               
+   mp #10 and MoveOS
+     obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |-
+               S1 -> [moveO*][moveS]-S1 as Nested
+
+   inst SeqIntro with program A=moveO*, program B=moveS, p=-S1
+     obtain  |- [moveO*][moveS]-S1 -> [moveO* ; moveS]-S1 as #11
+     
+   inst Trans with a=S1, b=[moveO*][moveS]-S1, c=[moveO* ; moveS]-S1
+      obtain  |- (S1 -> [moveO*][moveS]-S1) ->
+                 ([moveO*][moveS]-S1 -> [moveO* ; moveS]-S1) ->
+                 S1 -> [moveO* ; moveS]-S1  as #12
+                 
+   mp #12 and Nested
+      obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |-
+          ([moveO*][moveS]-S1 -> [moveO* ; moveS]-S1) ->
+          S1 -> [moveO* ; moveS]-S1 as #13
+          
+   mp #13 and #11 as goal
+end
