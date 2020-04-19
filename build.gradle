@@ -18,7 +18,7 @@ plugins {
 }
 
 version = "0.1"
-mainClassName = "edu.kit.iti.hilbert.Interpreter"
+mainClassName = "edu.kit.iti.hilbert.Main"
 
 repositories {
     // Use jcenter for resolving your dependencies.
@@ -33,6 +33,9 @@ dependencies {
 
     // Use Scalatest for testing our library
     testImplementation 'org.scalatest:scalatest_2.12:3.0.5'
+
+    // command line options
+    compile 'com.github.scopt:scopt_2.12:3.7.1'
 
     // Need scala-xml at test runtime
     testRuntimeOnly 'org.scala-lang.modules:scala-xml_2.12:1.1.1'
@@ -53,7 +56,7 @@ generateGrammarSource {
 
 jar {
     manifest {
-        attributes "Main-Class": "edu.kit.iti.hilbert.Interpreter"
+        attributes "Main-Class": "edu.kit.iti.hilbert.Main"
     }
 }
 

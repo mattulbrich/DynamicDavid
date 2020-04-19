@@ -1,0 +1,24 @@
+
+    push <formula> from <name>
+    [ obtain <fact> ]
+    [ as <name> ]
+
+This command can be used to apply the deduction theorem.  The
+mentioned formula must be amongst the premisses of the selected
+fact. The formula is added as left-hand-side of an implication.
+
+The obtained formula may be reported after the obtain keyword. This is
+optional but helpful for better traceability.
+
+If no name is set (after "as"), a fresh number is chosen and used as
+name.
+
+Example:
+
+Fact F:
+  X, Y, Z |- A
+
+> push Y from F as R .
+
+Fact R:
+  X, Z |- Y -> A

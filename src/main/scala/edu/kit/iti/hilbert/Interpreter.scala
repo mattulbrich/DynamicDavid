@@ -362,26 +362,28 @@ object Interpreter {
     */
   var checkObtain = "warn"
 
+  var directory = "."
+
   def stripQuotes(quoted: String): String =
     quoted.substring(1, quoted.length - 1)
 
-  def main(args: Array[String]): Unit = {
+  def run(file: Option[String]): Unit = {
 
     println("Dynamic David 0.1 - Interactive Hilbert Calculus for PDL")
     println("  see: https://github.com/mattulbrich/DynamicDavid")
     println("  Type 'help.' for instructions.")
     println
 
-    if (args.length > 0) {
+    if (file.isDefined) {
       var command: Command = null
       val intr = new Interpreter
       try {
-        HilbertParsers.parseFile(args(0)) foreach
+        HilbertParsers.parseFile(file.get) foreach
           { x => command = x ; intr.interpret(x) }
         sys.exit(0)
       } catch {
         case  ex: Exception =>
-          // if(verbose)
+          if(verbose)
             ex.printStackTrace()
           println("Error while handling command: " + command)
           println(ex.getMessage)
