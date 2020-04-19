@@ -1,0 +1,31 @@
+
+    mp <name> and <name>
+    [ obtain <fact> ]
+    [ as <name> ]
+
+This command can be used to apply modus ponens rule
+on two facts.
+
+The two conclusions of the two facts must match the requirements of
+modus ponens: one must be an implication (A->B) in which the second
+must the premiss (A). The resulting fact is (B) with the assumptions
+of both input facts.
+
+The obtained formula may be reported after the obtain keyword. This is
+optional but helpful for better traceability.
+
+If no name is set (after "as"), a fresh number is chosen and used as
+name.
+
+Example:
+
+  Fact Fact1:
+    X, Y |- A -> B
+  Fact Fact2:
+    X, Z |- A
+
+> mp Fact1 and Fact2 as Result .
+
+  Fact Result:
+    X, Y, Z |- B
+

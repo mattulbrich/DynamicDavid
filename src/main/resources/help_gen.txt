@@ -1,0 +1,25 @@
+
+    gen <name> with <program>
+    [ obtain <fact> ]
+    [ as <name> ]
+
+This command can be used to apply the dynamic logic generalisation
+rule. The conclusion of the selected fact is prefixed with a box
+operator containing the given program.
+
+The obtained formula may be reported after the obtain keyword. This is
+optional but helpful for better traceability.
+
+If no name is set (after "as"), a fresh number is chosen and used as
+name.
+
+Example:
+
+  Fact F:
+    X |- p->q
+
+> gen F with a+b;c* as R .
+
+  Fact R:
+    X |- [a + (b ; c)*](p -> q)
+

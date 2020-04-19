@@ -1,0 +1,26 @@
+
+    pop from <name>
+    [ obtain <fact> ]
+    [ as <name> ]
+
+This command can be used to apply the deduction theorem.  The
+conclusion of the selected fact must be an implication. The
+left-hand-side of the implication is moved to the premisses in the
+resulting fact.
+
+The obtained formula may be reported after the obtain keyword. This is
+optional but helpful for better traceability.
+
+If no name is set (after "as"), a fresh number is chosen and used as
+name.
+
+Example:
+
+Fact F:
+  |- p -> q
+
+> pop from F as R .
+
+Fact R:
+  p |- q
+

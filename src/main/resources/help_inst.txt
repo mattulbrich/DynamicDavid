@@ -1,0 +1,32 @@
+
+    inst <name>
+    with <var>=<formula>, <var>=<formula>, ...
+         program <var>=<program>, <var>=<program>, ... 
+    [ obtain <fact> ]
+    [ as <name> ]
+
+This command can be used to instantiate the propositional variables
+and atomic programs of a known fact by formulas and programs.
+
+The instantiated variables must be listed after the keyword
+"with". Atomic programs must be prefixed with the keyword "program".
+
+The obtained formula may be reported after the obtain keyword. This is
+optional but helpful for better traceability.
+
+If no name is set (after "as"), a fresh number is chosen and used as
+name.
+
+Example:
+
+>    assume [a*]p -> p as Zero .
+
+Fact Zero:
+ |- [a*]p -> p
+
+>    inst Zero with p=[C]x->y, program a=D
+>     obtain |- [D*]([C]x->y) -> [C]x->y
+>     as Result .
+
+Fact Result:
+ |- [D*]([C]x -> y) -> [C]x -> y

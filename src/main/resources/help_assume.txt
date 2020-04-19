@@ -1,0 +1,11 @@
+
+    assume <formula> [ as <name> ]
+
+This command can be used to introduce a new assumption or axiom to the
+prover system. If no name is set, a fresh number is chosen and used as
+name.
+
+Example:
+
+    assume  a -> a  as Id
+
