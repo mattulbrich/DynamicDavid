@@ -11,6 +11,7 @@ Control:
    load "<filename>"   -- read the file and interpret it
    facts               -- show all known facts
    fact <name>         -- show a particular fact
+   set <prop>="<val>"  -- set a prover system property
 
 Proof Control:
 

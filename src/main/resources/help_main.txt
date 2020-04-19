@@ -3,13 +3,14 @@ Dynamic David 0.1 - Interactive Hilbert Calculus for prop. dynamic logic
   written by Mattias Ulbrich (c) 2020
   GPL 3.0
 
-This commandline tool allows you to conduct formal proofs in a Hilbert calculus
-for propositional dynamic logic (PDL). The calculus is introduced, e.g.,
+This commandline tool allows you to conduct formal proofs in a Hilbert
+calculus for propositional dynamic logic (PDL). The calculus is
+introduced, e.g.,
 https://github.com/mattulbrich/DynamicDavid/calculus.md
 
-This is (mainly) for teaching purposes as the calculus is provably effective,
-by quite inefficient. It's called "Dynamic David" since Hilbert's first name is
-David.
+This is (mainly) for teaching purposes as the calculus is provably
+effective, by quite inefficient. It's called "Dynamic David" since
+Hilbert's first name is David.
 
 Get further information with one of the following commands
   help usage.

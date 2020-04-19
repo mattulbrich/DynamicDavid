@@ -1,8 +1,26 @@
+/*
+ * This file is part of Dynamic David.
+ *
+ * (C) 2020 Mattias Ulbrich, Karlsruhe Institute of Technology
+ *
+ * This is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * DIVE is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with DIVE.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @license GPL-3.0-or-later
+ */
 package edu.kit.iti.hilbert
 
-import com.sun.org.apache.bcel.internal.generic
 import edu.kit.iti.hilbert.parser.HilbertParsers
-import sun.security.action.GetBooleanAction
 
 import scala.collection.mutable
 import scala.io.Source
@@ -204,6 +222,7 @@ class Interpreter {
           for(c <- commands) {
             val cc = Command.updateObtain(c, factMap)
             println(Printer.cmd2str(cc))
+            println
           }
         }
     }
@@ -283,13 +302,25 @@ class Interpreter {
 
 object Interpreter {
 
-  def stripQuotes(quoted: String): String =
-    quoted.substring(1, quoted.length - 1)
-
+  /**
+    * Error messages will contain stacktraces if set to true
+    */
   var verbose = false
 
+  /**
+    * Check mode for obtain clauses:
+    *   warn ... issue if the obtain clause is wrong
+    *   strict . issue an exception -"-
+    *   ignore . do nothing -"-
+    */
   var checkObtain = "warn"
 
+  /**
+    * Set a global option of the prover engine.
+    * Currently supported: "verbose" and "chkObtain".
+    *
+    * @param set take the settings to change from the command
+    */
   def setOption(set: SET): Unit = set.property match {
     case "verbose" =>
       if(set.value != "true" && set.value != "false")
@@ -304,6 +335,9 @@ object Interpreter {
     case _ => throw new RuntimeException("Unknown property " + set.property)
   }
 
+  def stripQuotes(quoted: String): String =
+    quoted.substring(1, quoted.length - 1)
+
   def main(args: Array[String]): Unit = {
 
     println("Dynamic David 0.1 - Interactive Hilbert Calculus for PDL")
@@ -312,12 +346,25 @@ object Interpreter {
     println
 
     if (args.length > 0) {
+      var command: Command = null
       val intr = new Interpreter
-      HilbertParsers.parseFile(stripQuotes(args(0))) foreach intr.interpret
+      try {
+        HilbertParsers.parseFile(args(0)) foreach
+          { x => command = x ; intr.interpret(x) }
+      } catch {
+        case  ex: Exception =>
+          // if(verbose)
+            ex.printStackTrace()
+          println("Error while handling command: " + command)
+          println(ex.getMessage)
+      }
     } else
       commandLoop
   }
 
+  /**
+    * Interactive command loop with a prompt and error
+    */
   def commandLoop: Unit = {
     val command = new StringBuilder
     val interpreter = new Interpreter

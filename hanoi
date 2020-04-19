@@ -1,3 +1,5 @@
+load "axioms2"
+
 thm (S1 -> [moveS] -S1) , (S1 -> [moveO] S1)
     |- S1 -> [moveO ; moveS]-S1
  as Hanoi1
@@ -121,4 +123,7 @@ proof
           S1 -> [moveO* ; moveS]-S1 as #13
           
    mp #13 and #11 as goal
+
+   fact goal with proof
 end
+

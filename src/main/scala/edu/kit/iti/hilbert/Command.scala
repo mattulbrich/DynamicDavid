@@ -1,3 +1,24 @@
+/**
+ * This file is part of Dynamic David.
+ *
+ * (C) 2020 Mattias Ulbrich, Karlsruhe Institute of Technology
+ *
+ * This is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * DIVE is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with DIVE.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @license GPL-3.0-or-later
+ */
+
 package edu.kit.iti.hilbert
 
 import scala.collection.mutable
@@ -89,7 +110,7 @@ object Printer {
 
   def cmd2str(c: Command): String = {
     def obt(o: Option[Fact]) =
-      o.map(" obtain " + _.toString).getOrElse("")
+      o.map("\n  obtain " + _.toString).getOrElse("")
     def nam(n: Option[String]) =
       n.map(" as " + _).getOrElse("")
     def varMap(mapFormula: Map[String, Formula], mapProgram: Map[String, Program]) =
