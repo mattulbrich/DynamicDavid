@@ -1,6 +1,6 @@
 thm (a->b) -> (b->c) -> (a->c) as Trans
 proof
-  load "self" unless self
+  load "self.dd" unless self
   inst self with a=a->b
   inst self with a=b->c
   inst self with a=a

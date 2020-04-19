@@ -1,0 +1,5 @@
+thm [a][a*]p -> [a*][a]p as SwapStar
+proof
+  %%%% Well, still work in progress
+  assume [a][a*]p -> [a*][a]p as goal
+end

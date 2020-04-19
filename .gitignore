@@ -6,3 +6,6 @@ build
 
 # Ignore InelliJ files
 out
+
+# Emacs backups
+*~

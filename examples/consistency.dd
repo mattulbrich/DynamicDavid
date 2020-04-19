@@ -1,0 +1,58 @@
+
+% Input file for Dynamic David
+%
+% Proof that
+%   If M \/ {-F} is inconsistent (e.i. G and -G can be derived),
+%   then M |- F.
+%
+
+thm
+     M -> -F -> G,
+     M -> -F -> -G
+  |- M -> F
+as Inconsistent
+proof
+
+load "axioms2.dd" unless Ax4
+load "self.dd" unless self
+
+inst Ax4 with a=G, b=F
+  obtain  |- G -> -G -> F as #1
+
+inst self with a=M -> -F -> G
+  obtain M -> -F -> G |- M -> -F -> G as #2
+
+pop from #2
+  obtain M -> -F -> G, M |- -F -> G as #3
+
+pop from #3
+  obtain M -> -F -> G, M, -F |- G as G
+
+inst self with a=M -> -F -> -G
+  obtain M -> -F -> -G |- M -> -F -> -G as #4
+
+pop from #4
+  obtain M -> -F -> -G, M |- -F -> -G as #5
+
+pop from #5
+  obtain M -> -F -> -G, M, -F |- -G as negG
+
+mp #1 and G
+  obtain M -> -F -> G, M, -F |- -G -> F as #6
+
+mp #6 and negG
+  obtain M -> -F -> G, M, -F, M -> -F -> -G |- F as #7
+
+push -F from #7
+  obtain M -> -F -> G, M, M -> -F -> -G |- -F -> F as #8
+
+inst Ax5 with a=F
+  obtain |- (-F -> F) -> F as #9
+
+mp #8 and #9
+  obtain M -> -F -> G, M, M -> -F -> -G |- F as #10
+
+push M from #10
+  obtain M -> -F -> G, M -> -F -> -G |- M -> F as goal
+  
+end

@@ -1,4 +1,4 @@
-load "axioms2"
+load "axioms2.dd"
 
 thm (S1 -> [moveS] -S1) , (S1 -> [moveO] S1)
     |- S1 -> [moveO ; moveS]-S1
@@ -6,9 +6,9 @@ thm (S1 -> [moveS] -S1) , (S1 -> [moveO] S1)
 
 proof
 
-  load "axiomsPDL" unless K
-  load "self" unless self
-  load "transitive" unless Trans
+  load "axiomsPDL.dd" unless K
+  load "self.dd" unless self
+  load "transitive.dd" unless Trans
 
   inst self with a=S1->[moveS]-S1
     obtain S1 -> [moveS]-S1 |- S1 -> [moveS]-S1 as #2
@@ -49,9 +49,9 @@ thm (S1 -> [moveS] -S1) , (S1 -> [moveO] S1)
  as Hanoi2
 
 proof
-   load "axiomsPDL" unless K
-   load "self" unless self
-   load "transitive" unless Trans
+   load "axiomsPDL.dd" unless K
+   load "self.dd" unless self
+   load "transitive.dd" unless Trans
 
    thm (a->b->c) -> (b->a->c) as swapArgs
    proof

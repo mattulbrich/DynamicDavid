@@ -1,0 +1,28 @@
+
+thm (a -> b) -> (m -> a) -> m -> b as strongerAx2
+proof
+
+  load "axioms.dd" unless Ax1
+  load "self.dd" unless self
+
+  inst self with a=m -> a
+    obtain m -> a |- m -> a as #1
+
+  pop from #1
+    obtain m -> a, m |- a as #2
+
+  inst self with a=a -> b
+    obtain a -> b |- a -> b as #3
+
+  mp #2 and #3
+    obtain m -> a, m, a -> b |- b as #4
+
+  push m from #4
+    obtain m -> a, a -> b |- m -> b as #5
+
+  push m -> a from #5
+    obtain a -> b |- (m -> a) -> m -> b as #6
+
+  push a -> b from #6
+    obtain  |- (a -> b) -> (m -> a) -> m -> b as goal
+end

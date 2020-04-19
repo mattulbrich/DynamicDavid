@@ -1,4 +1,9 @@
-load "axioms" unless Ax1
+% Input file for Dynamic David
+%
+% 2 important theorems (often declared axioms)
+%
+
+load "axioms.dd" unless Ax1
 
 thm a -> -a -> b as Ax4
 proof
@@ -28,7 +33,7 @@ end
 
 thm (-a -> a) -> a as Ax5
 proof
-  load "self" unless self
+  load "self.dd" unless self
 
   inst Ax2 with a=-a, b=a, c=-(a -> a)
     obtain  |- (-a -> a -> -(a -> a)) -> (-a -> a) -> -a -> -(a -> a) as A1

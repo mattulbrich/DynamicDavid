@@ -1,0 +1,13 @@
+% Input file for Dynamic David
+%
+% Propositional logic, fundamental axioms
+%
+% 2 more important thorems (often declared axioms) are in "axioms2.dd"
+%
+
+assume a -> b -> a as Ax1
+
+assume (a -> (b -> c)) -> (a->b) -> (a->c) as Ax2
+
+assume (-a -> -b) -> (b -> a) as Ax3
+

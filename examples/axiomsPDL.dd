@@ -1,0 +1,30 @@
+% Input file for Dynamic David
+%
+% Axioms specific to Propositional dynamic logic PDL
+%
+
+% Axiom K of modal logics
+assume [A](p -> q) -> [A]p -> [A]q  as  K
+
+% Axiom for sequential composition
+% [A;B]p <-> [A][B]p
+assume [A;B]p -> [A][B]p as SeqElim
+assume [A][B]p -> [A;B]p as SeqIntro
+
+% Axiom for nondet. choice
+% [A+B]p <-> [A]p && [B]p
+assume [A+B]p -> [A]p as ChoiceElim1
+assume [A+B]p -> [B]p as ChoiceElim2
+assume [A]p -> [B]p -> [A+B]p as ChoiceIntro
+
+% Axiom for tests
+% [?p]q <-> (p -> q)
+assume [?p]q -> p -> q as TestElim
+assume (p -> q) -> [?p]q as TestIntro
+
+% Axioms for Kleene iteration
+assume p -> [A*](p -> [A]p) -> [A*]p as Ind
+
+% For completeness: <> and [] are dual
+assume <a>p -> -[a]-p as DualDiamond
+assume [a]p -> -<a>-p as DualBox

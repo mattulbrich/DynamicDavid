@@ -30,6 +30,8 @@ class Interpreter {
   val factMap : mutable.Map[String, Fact] = mutable.LinkedHashMap()
   val logMap : mutable.Map[String, Command] = mutable.Map()
 
+  var silent = false;
+
   def apply(c: Command): Unit = interpret(c)
 
   def interpret(cmd: Command): Unit = {
@@ -48,7 +50,7 @@ class Interpreter {
       case x : THM => thm(x)
       case x : PRINT_FACT => printFact(x)
       case x : CLEAR => clear(x)
-      case x : SET => Interpreter.setOption(x)
+      case x : SET => setOption(x)
       case HELP(subcommand) => help(subcommand)
       case QUIT() => System.exit(0)
     }
@@ -61,8 +63,10 @@ class Interpreter {
     factMap.put(name, fact)
     logMap.put(name, command)
 
-    println("Fact " + name + ":")
-    println(fact)
+    if(!silent) {
+      println("Fact " + name + ":")
+      println(fact)
+    }
   }
 
   /**
@@ -165,6 +169,8 @@ class Interpreter {
 
   def thm(thm: THM): Unit = {
     val subInt = new Interpreter
+    // by default do not echo in thms.
+    subInt.silent = true
     subInt.factMap ++= this.factMap
     subInt.clear(CLEAR(None))
     thm.proof foreach subInt.interpret
@@ -284,6 +290,36 @@ class Interpreter {
       case _: Exception => println("Unknown help topic: " + sub.get)
     }
 
+  /**
+    * Set a global option of the prover engine.
+    * Currently supported: "verbose" and "chkObtain".
+    *
+    * @param set take the settings to change from the command
+    */
+  def setOption(set: SET): Unit = set.property match {
+    case "verbose" =>
+      try {
+        Interpreter.verbose = set.value.toBoolean
+      } catch {
+        case ex:Exception =>
+          throw new RuntimeException("verbose must be set to true or false", ex)
+      }
+
+    case "silent" =>
+      try {
+        this.silent = set.value.toBoolean
+      } catch {
+        case ex:Exception =>
+          throw new RuntimeException("silent must be set to true or false", ex)
+      }
+
+    case "chkObtain" =>
+      if(!Set("strict", "ignore", "warn").contains(set.value))
+        throw new RuntimeException("chkObtain must be set to strict, ignore or warn")
+      Interpreter.checkObtain = set.value;
+
+    case _ => throw new RuntimeException("Unknown property " + set.property)
+  }
 
   def fillWithName(cmd: Command) = {
     def makeNewName: String = {
@@ -326,26 +362,6 @@ object Interpreter {
     */
   var checkObtain = "warn"
 
-  /**
-    * Set a global option of the prover engine.
-    * Currently supported: "verbose" and "chkObtain".
-    *
-    * @param set take the settings to change from the command
-    */
-  def setOption(set: SET): Unit = set.property match {
-    case "verbose" =>
-      if(set.value != "true" && set.value != "false")
-        throw new RuntimeException("verbose must be set to true or false")
-      verbose = (set.value == "true")
-
-    case "chkObtain" =>
-      if(!Set("strict", "ignore", "warn").contains(set.value))
-        throw new RuntimeException("chkObtain must be set to strict, ignore or warn")
-      checkObtain = set.value;
-
-    case _ => throw new RuntimeException("Unknown property " + set.property)
-  }
-
   def stripQuotes(quoted: String): String =
     quoted.substring(1, quoted.length - 1)
 
@@ -362,12 +378,14 @@ object Interpreter {
       try {
         HilbertParsers.parseFile(args(0)) foreach
           { x => command = x ; intr.interpret(x) }
+        sys.exit(0)
       } catch {
         case  ex: Exception =>
           // if(verbose)
             ex.printStackTrace()
           println("Error while handling command: " + command)
           println(ex.getMessage)
+          sys.exit(1)
       }
     } else
       commandLoop

@@ -1,5 +1,6 @@
 thm a |- a as self
 proof
+  load "axioms.dd" unless Ax1
   inst Ax2 with b=b->a, c=a as E1
   inst Ax1 with b=b->a as E2
   mp E1 and E2 as E3
