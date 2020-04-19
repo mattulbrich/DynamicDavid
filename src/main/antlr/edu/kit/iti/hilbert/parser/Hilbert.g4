@@ -96,7 +96,7 @@ theorem :
   ;
 
 assume :
-  'assume' formula ( 'as' name=(ID | FORMULA_ID) )?
+  'assume' (formula | fact) ( 'as' name=(ID | FORMULA_ID) )?
   ;
 
 fact :

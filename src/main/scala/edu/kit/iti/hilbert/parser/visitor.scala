@@ -109,7 +109,10 @@ object ScalaVisitor extends HilbertBaseVisitor[AST] {
 
   override def visitAssume(ctx: HilbertParser.AssumeContext): ASSUME =
     ASSUME(Option(ctx.ID()).map(_.getText),
-      ctx.formula().accept(this).asInstanceOf[Formula])
+      if(ctx.formula != null)
+        Fact(ctx.formula.accept(this).asInstanceOf[Formula])
+      else
+        ctx.fact.accept(this).asInstanceOf[Fact])
 
   override def visitInstantiate(ctx: HilbertParser.InstantiateContext): INST = {
     val vars = for(v <- asScalaBuffer(ctx.vars)) yield v.getText

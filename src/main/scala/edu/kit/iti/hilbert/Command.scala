@@ -38,7 +38,7 @@ sealed abstract class Program extends AST {
   override def toString: String = Printer.prg2str(this, 0)
 }
 
-case class ASSUME(name: Option[String], exp: Formula) extends NamingCommand(name)
+case class ASSUME(name: Option[String], exp: Fact) extends NamingCommand(name)
 case class INST(name: Option[String], id: String,
                 mapFormula: Map[String, Formula],
                 mapProgram: Map[String, Program], obtain: Option[Fact]) extends NamingCommand(name)

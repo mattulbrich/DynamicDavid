@@ -30,6 +30,30 @@ class Interpreter {
   val factMap : mutable.Map[String, Fact] = mutable.LinkedHashMap()
   val logMap : mutable.Map[String, Command] = mutable.Map()
 
+  def apply(c: Command): Unit = interpret(c)
+
+  def interpret(cmd: Command): Unit = {
+    val namedCmd = fillWithName(cmd)
+
+    namedCmd match {
+      case LOAD(file, unless) =>
+        if(!unless.exists( factMap.contains(_) ))
+          HilbertParsers.parseFile(Interpreter.stripQuotes(file)) foreach interpret
+      case x @ ASSUME(name, fact) => putFact(name.get, fact, x)
+      case x : POP => pop(x)
+      case x : PUSH => push(x)
+      case x : INST => inst(x)
+      case x : MP => modusPonens(x)
+      case x : GEN => generalise(x)
+      case x : THM => thm(x)
+      case x : PRINT_FACT => printFact(x)
+      case x : CLEAR => clear(x)
+      case x : SET => Interpreter.setOption(x)
+      case HELP(subcommand) => help(subcommand)
+      case QUIT() => System.exit(0)
+    }
+  }
+
   def putFact(name: String, fact: Fact, command: Command): Unit = {
     if(factMap contains name)
       throw new RuntimeException("Fact name aready used: " + name)
@@ -40,6 +64,17 @@ class Interpreter {
     println("Fact " + name + ":")
     println(fact)
   }
+
+  /**
+    * Add a fact to the fact base and check it against the "obtained" annotation.
+    *
+    * Interpreter.checkObtain is queried to decide how to react to failure.
+    *
+    * @param name the name of the fact to be added
+    * @param fact the actual fact
+    * @param command the command responsible for the new fact
+    * @param obtained the obtained annotation to check
+    */
 
   def putFact(name: String, fact: Fact, command: Command, obtained: Option[Fact]): Unit = {
 
@@ -127,8 +162,6 @@ class Interpreter {
     val newFact = Fact(fact.get.premiss map instForm, instForm(fact.get.conclusion))
     putFact(inst.name.get, newFact, inst, inst.obtain)
   }
-
-  def apply(c: Command): Unit = interpret(c)
 
   def thm(thm: THM): Unit = {
     val subInt = new Interpreter
@@ -274,28 +307,6 @@ class Interpreter {
       case MP(name, fst, snd, obtain) => MP(newName(name), fst, snd, obtain)
       case GEN(name, id, prog, obtain) => GEN(newName(name), id, prog, obtain)
       case x => x
-    }
-  }
-
-  def interpret(cmd: Command): Unit = {
-    val namedCmd = fillWithName(cmd)
-
-    namedCmd match {
-      case LOAD(file, unless) =>
-        if(!unless.exists( factMap.contains(_) ))
-          HilbertParsers.parseFile(Interpreter.stripQuotes(file)) foreach interpret
-      case x @ ASSUME(name, exp) => putFact(name.get, Fact(exp), x)
-      case x : POP => pop(x)
-      case x : PUSH => push(x)
-      case x : INST => inst(x)
-      case x : MP => modusPonens(x)
-      case x : GEN => generalise(x)
-      case x : THM => thm(x)
-      case x : PRINT_FACT => printFact(x)
-      case x : CLEAR => clear(x)
-      case x : SET => Interpreter.setOption(x)
-      case HELP(subcommand) => help(subcommand)
-      case QUIT() => System.exit(0)
     }
   }
 }
