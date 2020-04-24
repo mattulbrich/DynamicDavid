@@ -20,6 +20,8 @@
  */
 package edu.kit.iti.hilbert
 
+import java.nio.file.{Path, Paths}
+
 import edu.kit.iti.hilbert.parser.HilbertParsers
 
 import scala.collection.mutable
@@ -40,7 +42,7 @@ class Interpreter {
     namedCmd match {
       case LOAD(file, unless) =>
         if(!unless.exists( factMap.contains(_) ))
-          HilbertParsers.parseFile(Interpreter.stripQuotes(file)) foreach interpret
+          Interpreter.parseFile(file) foreach interpret
       case x @ ASSUME(name, fact) => putFact(name.get, fact, x)
       case x : POP => pop(x)
       case x : PUSH => push(x)
@@ -371,26 +373,39 @@ object Interpreter {
 
     println("Dynamic David 0.1 - Interactive Hilbert Calculus for PDL")
     println("  see: https://github.com/mattulbrich/DynamicDavid")
-    println("  Type 'help.' for instructions.")
-    println
 
-    if (file.isDefined) {
-      var command: Command = null
-      val intr = new Interpreter
-      try {
-        HilbertParsers.parseFile(file.get) foreach
-          { x => command = x ; intr.interpret(x) }
-        sys.exit(0)
-      } catch {
-        case  ex: Exception =>
-          if(verbose)
-            ex.printStackTrace()
-          println("Error while handling command: " + command)
-          println(ex.getMessage)
-          sys.exit(1)
-      }
-    } else
+    if (file.isDefined)
+      interpretFile(file.get)
+    else
       commandLoop
+  }
+
+  def parseFile(str: String) = {
+    val filename = Interpreter.stripQuotes(str)
+    val file = Paths.get(Interpreter.directory, filename)
+    HilbertParsers.parseFile(file.toAbsolutePath.toString)
+  }
+
+  /**
+    * interpret a single file.
+    *
+    * @param file file name
+    */
+  def interpretFile(file: String) = {
+    var command: Command = null
+    val intr = new Interpreter
+    try {
+      println
+      parseFile(file) foreach { x => command = x; intr.interpret(x) }
+      sys.exit(0)
+    } catch {
+      case ex: Exception =>
+        if (verbose)
+          ex.printStackTrace()
+        println("Error while handling command: " + command)
+        println(ex.getMessage)
+        sys.exit(1)
+    }
   }
 
   /**
@@ -400,6 +415,8 @@ object Interpreter {
     val command = new StringBuilder
     val interpreter = new Interpreter
     val reader = Source.fromInputStream(System.in).bufferedReader()
+    println("  Type 'help.' for instructions.")
+    println
     while(true) {
       print("> ")
       var line = reader.readLine();

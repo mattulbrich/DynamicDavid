@@ -36,6 +36,8 @@ dependencies {
 
     // command line options
     compile 'com.github.scopt:scopt_2.12:3.7.1'
+    
+    // json (for jupyter)
 
     // Need scala-xml at test runtime
     testRuntimeOnly 'org.scala-lang.modules:scala-xml_2.12:1.1.1'
