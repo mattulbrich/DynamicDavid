@@ -24,9 +24,7 @@ import java.io._
 import java.nio.file.{NoSuchFileException, Paths}
 
 import edu.kit.iti.hilbert.parser.HilbertParsers
-import jdk.nashorn.internal.parser.Lexer.RegexToken
 
-import scala.collection.immutable.StringLike
 import scala.collection.mutable
 import scala.io.Source
 import scala.util.matching.Regex
@@ -147,10 +145,11 @@ class Interpreter {
     putFact(push.name.get, Fact(newSet, IMP(push.exp, orgFact.conclusion)), push, push.obtain)
   }
 
-  def inst(inst: INST): Unit = {
+
+  def instantiate(e: Formula, mapFormula: Map[String, Formula], mapProg: Map[String, Program]) = {
 
     def instForm(e: Formula) : Formula = e match {
-      case vari @ VARIABLE(v) => inst.mapFormula.getOrElse(v, vari)
+      case vari @ VARIABLE(v) => mapFormula.getOrElse(v, vari)
       case IMP(a, b) => IMP(instForm(a), instForm(b))
       case NEG(a) => NEG(instForm(a));
       case BOX(p, a) => BOX(instProgram(p), instForm(a))
@@ -158,18 +157,26 @@ class Interpreter {
     }
 
     def instProgram(p: Program) : Program = p match {
-      case atomic @ ATOMIC(name) => inst.mapProgram.getOrElse(name, atomic)
+      case atomic @ ATOMIC(name) => mapProg.getOrElse(name, atomic)
       case KLEENE(p) => KLEENE(instProgram(p))
       case SEQ(p, q) => SEQ(instProgram(p), instProgram(q))
       case CHOICE(p, q) => CHOICE(instProgram(p), instProgram(q))
       case TEST(f) => TEST(instForm(f))
     }
 
+    instForm(e)
+  }
+
+
+  def inst(inst: INST): Unit = {
+
     val fact = factMap get inst.id
     if(fact.isEmpty)
       throw new RuntimeException("Unknown fact " + inst.id)
 
-    val newFact = Fact(fact.get.premiss map instForm, instForm(fact.get.conclusion))
+    def I(f:Formula) = instantiate(f, inst.mapFormula, inst.mapProgram)
+
+    val newFact = Fact(fact.get.premiss map I, I(fact.get.conclusion))
     putFact(inst.name.get, newFact, inst, inst.obtain)
   }
 
@@ -185,6 +192,57 @@ class Interpreter {
       case Some(f) =>
         if(f != thm.fact) throw new RuntimeException("Goal is not the theorem goal")
         putFact(thm.name, f, thm)
+    }
+
+  }
+
+  def matchFormula(a: Formula, b: Formula) = {
+
+    val mapFormula: mutable.Map[String, Formula] = mutable.Map()
+    val mapProgram: mutable.Map[String, Program] = mutable.Map()
+
+    def mf(a: Formula, b: Formula): Unit =
+      if (a != b) (a, b) match {
+        case (VARIABLE(n), _) =>
+          if (mapFormula.contains(n)) mf(mapFormula.get(n).get, b)
+          else mapFormula.put(n, b)
+        case (IMP(x1, y1), IMP(x2, y2)) =>
+          mf(x1, x2)
+          mf(y1, y2)
+        case (BOX(p1, f1), BOX(p2, f2)) =>
+          mp(p1, p2)
+          mf(f1, f2)
+        case (DIAMOND(p1, f1), DIAMOND(p2, f2)) =>
+          mp(p1, p2)
+          mf(f1, f2)
+        case (NEG(f1), NEG(f2)) =>
+          mf(f1, f2)
+        case _ => throw MatchingException()
+      }
+
+    def mp(p: Program, q: Program): Unit =
+      if (p != q) (p, q) match {
+        case (a@ATOMIC(n), _) =>
+          if (mapProgram contains n) mp(mapProgram.get(n).get, q)
+          else mapProgram.put(n, q)
+        case (TEST(f1), TEST(f2)) =>
+          mf(f1, f2)
+        case (CHOICE(a1, b1), CHOICE(a2, b2)) =>
+          mp(a1, a2)
+          mp(b1, b2)
+        case (SEQ(a1, b1), SEQ(a2, b2)) =>
+          mp(a1, a2)
+          mp(b1, b2)
+        case (KLEENE(p1), KLEENE(p2)) =>
+          mp(p1, p2)
+        case _ => throw MatchingException()
+      }
+
+    try {
+      mf(a, b)
+      Some(mapFormula.toMap, mapProgram.toMap)
+    } catch {
+      case _: MatchingException => None
     }
 
   }
@@ -205,26 +263,43 @@ class Interpreter {
     val c2 = snd.get.conclusion
     val p = fst.get.premiss union snd.get.premiss
 
+    c1 match {
+      case IMP(a, b) =>
+        if(mp.inst) {
+          val m = matchFormula(a, c2) : Option[(Map[String, Formula], Map[String, Program])]
+          if(m.isDefined) {
+            def I(f:Formula) = instantiate(f, m.get._1, m.get._2)
+            val instP = fst.get.premiss union (snd.get.premiss map I)
+            putFact(mp.name.get, Fact(instP, I(b)), mp, mp.obtain)
+            return
+          }
+        } else {
+          if (a equals c2) {
+            putFact(mp.name.get, Fact(p, b), mp, mp.obtain)
+            return
+          }
+        }
+      case _ =>
+    }
+
     c2 match {
       case IMP(a, b) =>
         if(a equals c1) {
+          println("Deprecation warning: mp should first take the implication! This direction may be removed soon.")
           putFact(mp.name.get, Fact(p, b), mp, mp.obtain)
           return
         }
       case _ =>
     }
 
-    c1 match {
-      case IMP(a, b) =>
-        if(a equals c2) {
-          putFact(mp.name.get, Fact(p, b), mp, mp.obtain)
-          return
-        }
-      case _ =>
-    }
 
+    //if(Interpreter.verbose) {
+      println("  " + mp.fst + ": " + fst.get)
+      println("  " + mp.snd + ": " + snd.get)
+    //}
     throw new RuntimeException("MP does not match")
   }
+
 
   private def generalise(gen: GEN): Unit = {
     val fact = factMap get gen.id
@@ -246,7 +321,7 @@ class Interpreter {
         case x @ POP(_, id, _) => x :: collectCommands(id)
         case x @ PUSH(_, id, _, _) => x :: collectCommands(id)
         case x @ INST(_, id, _, _, _) => x :: collectCommands(id)
-        case x @ MP(_, fst, snd, _) => x :: collectCommands(fst) ::: collectCommands(snd)
+        case x @ MP(_, _, fst, snd, _) => x :: collectCommands(fst) ::: collectCommands(snd)
         case x @ GEN(_, id, _, _) => x :: collectCommands(id)
         case x => List(x)
       }
@@ -346,7 +421,7 @@ class Interpreter {
       case PUSH(name, id, exp, obtain) => PUSH(newName(name), id, exp, obtain)
       case INST(name, id, mapFormula, mapProgram, obtain) =>
         INST(newName(name), id, mapFormula, mapProgram, obtain)
-      case MP(name, fst, snd, obtain) => MP(newName(name), fst, snd, obtain)
+      case MP(name, inst, fst, snd, obtain) => MP(newName(name), inst, fst, snd, obtain)
       case GEN(name, id, prog, obtain) => GEN(newName(name), id, prog, obtain)
       case x => x
     }
@@ -487,3 +562,5 @@ object Interpreter {
     }
   }
 }
+
+case class MatchingException() extends Exception

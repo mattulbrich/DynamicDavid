@@ -167,6 +167,7 @@ object ScalaVisitor extends HilbertBaseVisitor[AST] {
 
   override def visitMp(ctx: HilbertParser.MpContext): MP =
     MP(Option(ctx.name).map(_.getText),
+      ctx.inst != null,
       ctx.first.getText, ctx.second.getText,
       Option(ctx.obtain).map(_.accept(this).asInstanceOf[Fact]))
 

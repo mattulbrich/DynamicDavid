@@ -78,7 +78,8 @@ pop :
   ;
 
 mp :
-  'mp' first=(ID | FORMULA_ID) 'and' second=(ID | FORMULA_ID)
+  'mp' ( inst='inst' )?
+  first=(ID | FORMULA_ID) 'and' second=(ID | FORMULA_ID)
   ( 'obtain' obtain=fact )?
   ( 'as' name=(ID | FORMULA_ID) )?
   ;
@@ -117,8 +118,8 @@ formula :
 
 program :
     ID #Atomic
-  | fst=program ';' snd=program #Seq
   | program '*' #Kleene
+  | fst=program ';' snd=program #Seq
   | fst=program '+' snd=program #Choice
   | '?' formula #Test
   | '(' program ')' #ParenProgram

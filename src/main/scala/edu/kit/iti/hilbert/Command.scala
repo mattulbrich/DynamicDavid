@@ -44,7 +44,7 @@ case class INST(name: Option[String], id: String,
                 mapProgram: Map[String, Program], obtain: Option[Fact]) extends NamingCommand(name)
 case class PUSH(name: Option[String], id: String, exp: Formula, obtain: Option[Fact]) extends NamingCommand(name)
 case class POP(name: Option[String], id: String, obtain: Option[Fact]) extends NamingCommand(name)
-case class MP(name: Option[String], fst: String, snd: String, obtain: Option[Fact]) extends NamingCommand(name)
+case class MP(name: Option[String], inst: Boolean, fst: String, snd: String, obtain: Option[Fact]) extends NamingCommand(name)
 case class GEN(name: Option[String], id: String, prog: Program, obtain: Option[Fact]) extends NamingCommand(name)
 case class THM(name: String, fact: Fact, proof: Seq[Command]) extends NamingCommand(Some(name))
 
@@ -126,7 +126,7 @@ object Printer {
         s"inst $id with ${varMap(mapFormula, mapProgram)}" +
           s"${obt(obtain)}${nam(name)}"
       case THM(name, fact, proof) => s"thm $fact as $name (proof omitted)"
-      case MP(name, fst, snd, obtain) => s"mp $fst and $snd${obt(obtain)}${nam(name)}"
+      case MP(name, inst, fst, snd, obtain) => s"mp${if(inst) " inst" else ""} $fst and $snd${obt(obtain)}${nam(name)}"
       case GEN(name, id, prog, obtain) => s"gen $id with $prog${obt(obtain)}${nam(name)}"
       case QUIT() => "quit (error)"
     }
@@ -137,12 +137,11 @@ object Printer {
 object Command {
 
   def updateObtain(c: Command, overwrite: Fact): Command = c match {
-    case POP(name, id, obtain) => POP(name, id, Some(overwrite))
-    case PUSH(name, id, exp, obtain) => PUSH(name, id, exp, Some(overwrite))
-    case INST(name, id, mapFormula, mapProgram, obtain) =>
-      INST(name, id, mapFormula, mapProgram, Some(overwrite))
-    case MP(name, fst, snd, obtain) => MP(name, fst, snd, Some(overwrite))
-    case GEN(name, id, prog, obtain) => GEN(name, id, prog, Some(overwrite))
+    case x : POP => x.copy(obtain = Some(overwrite))
+    case x : PUSH => x.copy(obtain = Some(overwrite))
+    case x : INST => x.copy(obtain = Some(overwrite))
+    case x : MP => x.copy(obtain = Some(overwrite))
+    case x : GEN => x.copy(obtain = Some(overwrite))
     case x => x
   }
 

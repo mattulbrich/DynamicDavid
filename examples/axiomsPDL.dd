@@ -25,6 +25,10 @@ assume (p -> q) -> [?p]q as TestIntro
 % Axioms for Kleene iteration
 assume p -> [A*](p -> [A]p) -> [A*]p as Ind
 
+assume [A*]p -> p as Unwind0
+assume [A*]p -> [A][A*]p as Unwind
+assume p -> [A][A*]p -> [A*]p as Wind
+
 % For completeness: <> and [] are dual
 assume <a>p -> -[a]-p as DualDiamond
 assume [a]p -> -<a>-p as DualBox
