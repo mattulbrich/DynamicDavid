@@ -1,12 +1,19 @@
 package edu.kit.iti.hilbert
 
+import edu.kit.iti.hilbert.Interpreter.{commandLoop, interpretFile}
+
 case class Config(verbose: Boolean = false,
                   checkObtain: String = "warn",
                   directory: String = ".",
                   file: Option[String] = None,
-                  jupyterFile: Option[String] = None)
+                  jupyter: Boolean = false)
 
 object Main {
+
+  def VERSION = "0.1"
+
+  val BANNER: Any = "Dynamic David " + Main.VERSION + " - Interactive Hilbert Calculus for PDL\n" +
+    "   see: https://github.com/mattulbrich/DynamicDavid"
 
   def main(args: Array[String]): Unit = {
     val parser = new scopt.OptionParser[Config]("dyndavid") {
@@ -27,9 +34,9 @@ object Main {
           else failure("check-obtain must be ignore, warn or strict"))
         .text("obtain annotations: ignore, warn, strict (default: warn)")
 
-      /*opt[String]('j', "jupyter")
+      opt[Unit]('j', "jupyter")
         .text("act as jupyter notebook kernel")
-        .action((x,c) => c.copy(jupyterFile = Some(x)))*/
+        .action((x, c) => c.copy(jupyter = true))
 
       help("help").text("prints this usage text")
 
@@ -45,6 +52,8 @@ object Main {
 
     }
 
+    println(BANNER)
+
     // parser.parse returns Option[C]
     parser.parse(args, Config()) match {
       case Some(config) =>
@@ -52,14 +61,18 @@ object Main {
         Interpreter.checkObtain = config.checkObtain
         Interpreter.verbose = config.verbose
         Interpreter.directory = config.directory
-       /* if(config.jupyterFile.isDefined)
-          JupyterKernel.launch(config.jupyterFile.get)
-        else*/
-          Interpreter.run(config.file)
+        if (config.file.isDefined)
+          Interpreter.interpretFile(config.file.get)
+        else if(config.jupyter)
+          Interpreter.jupityerLoop
+        else
+          Interpreter.commandLoop
 
       case None =>
         sys.exit(1)
     }
+
+
   }
 
 }

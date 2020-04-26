@@ -20,12 +20,16 @@
  */
 package edu.kit.iti.hilbert
 
-import java.nio.file.{Path, Paths}
+import java.io._
+import java.nio.file.{NoSuchFileException, Paths}
 
 import edu.kit.iti.hilbert.parser.HilbertParsers
+import jdk.nashorn.internal.parser.Lexer.RegexToken
 
+import scala.collection.immutable.StringLike
 import scala.collection.mutable
 import scala.io.Source
+import scala.util.matching.Regex
 
 class Interpreter {
 
@@ -42,7 +46,7 @@ class Interpreter {
     namedCmd match {
       case LOAD(file, unless) =>
         if(!unless.exists( factMap.contains(_) ))
-          Interpreter.parseFile(file) foreach interpret
+          Interpreter.parseFile(Interpreter.stripQuotes(file)) foreach interpret
       case x @ ASSUME(name, fact) => putFact(name.get, fact, x)
       case x : POP => pop(x)
       case x : PUSH => push(x)
@@ -366,22 +370,13 @@ object Interpreter {
 
   var directory = "."
 
+  val regex_backslash = new Regex("""\\(.)""")
+
   def stripQuotes(quoted: String): String =
     quoted.substring(1, quoted.length - 1)
 
-  def run(file: Option[String]): Unit = {
-
-    println("Dynamic David 0.1 - Interactive Hilbert Calculus for PDL")
-    println("  see: https://github.com/mattulbrich/DynamicDavid")
-
-    if (file.isDefined)
-      interpretFile(file.get)
-    else
-      commandLoop
-  }
-
   def parseFile(str: String) = {
-    val filename = Interpreter.stripQuotes(str)
+    val filename = str
     val file = Paths.get(Interpreter.directory, filename)
     HilbertParsers.parseFile(file.toAbsolutePath.toString)
   }
@@ -394,18 +389,15 @@ object Interpreter {
   def interpretFile(file: String) = {
     var command: Command = null
     val intr = new Interpreter
-    try {
-      println
-      parseFile(file) foreach { x => command = x; intr.interpret(x) }
-      sys.exit(0)
-    } catch {
-      case ex: Exception =>
-        if (verbose)
-          ex.printStackTrace()
-        println("Error while handling command: " + command)
-        println(ex.getMessage)
-        sys.exit(1)
-    }
+
+    val content = Source.fromFile(file).mkString;
+
+    println
+
+    val res = doCommand(content, intr)
+
+    sys.exit(if(res) 0 else 1)
+
   }
 
   /**
@@ -428,23 +420,70 @@ object Interpreter {
       line = line.trim()
       if(line endsWith ".") {
         command ++= line.substring(0, line.length-1)
-        try {
-          println
-          val cmd = HilbertParsers.parseCommands(command.mkString)
-          cmd.foreach(interpreter(_))
-        } catch {
-          case  ex: Exception =>
-            if(verbose)
-              ex.printStackTrace()
-            println("Error while handling command: " + command)
-            println(ex.getMessage)
-        }
+        println
+        doCommand(command, interpreter)
         command.clear()
         println
       } else {
         command ++= line
         command ++= "\n"
       }
+    }
+  }
+
+
+  /**
+    * Command loop for a jupyter server
+    */
+  def jupityerLoop: Unit = {
+    val interpreter = new Interpreter
+    val reader = Source.fromInputStream(System.in).bufferedReader()
+    val byteArray = new ByteArrayOutputStream
+    val print = new PrintStream(byteArray)
+
+    println
+    while(true) {
+      var line = reader.readLine
+
+      if(line == null) {
+        System.exit(0)
+      }
+
+      val command = regex_backslash.replaceAllIn(line.trim, m => m.group(1) match {
+        case "n" => "\n"
+        case other => other
+      })
+
+      doCommand(command, interpreter, print)
+
+      val result = byteArray.toByteArray.mkString.
+        replace("\\", "\\\\").
+        replace("\n", "\\n");
+      println(result)
+
+      byteArray.reset()
+    }
+  }
+
+  private def doCommand(command: Any, interpreter: Interpreter, out: PrintStream = System.out): Boolean = {
+    try {
+      val cmd = HilbertParsers.parseCommands(command.toString)
+      cmd.foreach(interpreter(_))
+      return true
+    } catch {
+      case ex: NoSuchFileException =>
+        // Annoying special casing
+        if (verbose)
+          ex.printStackTrace(out)
+        out.println("Error while handling command: " + command)
+        out.println("File not found: " + ex.getMessage)
+        return false
+      case ex: Exception =>
+        if (verbose)
+          ex.printStackTrace(out)
+        out.println("Error while handling command: " + command)
+        out.println(ex.getMessage)
+        return false
     }
   }
 }

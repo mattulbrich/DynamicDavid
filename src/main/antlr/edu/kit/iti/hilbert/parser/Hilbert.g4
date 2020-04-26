@@ -46,7 +46,8 @@ controls :
     'facts' # ShowFacts
   | 'fact' id=(ID|FORMULA_ID) ( 'with' proof='proof' )?  # ShowFact
   | 'quit' # Quit
-  | 'help' ( name=ID )? # Help
+  // TODO Perhaps make this change lexer mode?
+  | 'help' ( name=(ID|'inst'|'push'|'pop'|'mp'|'gen'|'thm'|'assume'|'set') )? # Help
   | 'clear' ( name=ID )? # Clear
   | 'load' STRING_LIT ( 'unless' ID )? # Load
   | 'set' name=ID '=' value=(ID|STRING_LIT) # Set
