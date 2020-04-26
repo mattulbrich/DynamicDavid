@@ -14,7 +14,7 @@ proof
   inst self with a=a -> b
     obtain a -> b |- a -> b as #3
 
-  mp #2 with #3
+  mp #3 with #2
     obtain m -> a, m, a -> b |- b as #4
 
   push m from #4

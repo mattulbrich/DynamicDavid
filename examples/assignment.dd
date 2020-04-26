@@ -38,7 +38,7 @@ proof
   gen #1 with A*
     obtain p -> [A]p |- [A*](p -> [A]p) as #2
 
-  mp #2 with Ind2
+  mp Ind2 with #2
     obtain p -> [A]p |- p -> [A*]p as goal
 end
 
@@ -73,7 +73,7 @@ proof
     gen stepB with b*
     inst Ind2 with p=[(a+b)*]p, program A=b
       obtain |- [b*]([(a + b)*]p -> [b][(a + b)*]p) -> [(a + b)*]p -> [b*][(a + b)*]p
-    mp #1 with #2
+    mp #2 with #1
       obtain |- [(a + b)*]p -> [b*][(a + b)*]p as goal
   end
 
@@ -100,7 +100,7 @@ proof
     gen stepA with a*
     inst Ind2 with p=[(a+b)*]p, program A=a
       obtain |- [a*]([(a + b)*]p -> [a][(a + b)*]p) -> [(a + b)*]p -> [a*][(a + b)*]p
-    mp #1 with #2
+    mp #2 with #1
       obtain |- [(a + b)*]p -> [a*][(a + b)*]p as goal
   end
 
@@ -111,7 +111,7 @@ proof
     inst K with program A=a*, p=[(a + b)*]p, q=[b*][(a + b)*]p
       obtain |- [a*]([(a + b)*]p -> [b*][(a + b)*]p) ->
                 [a*][(a + b)*]p -> [a*][b*][(a + b)*]p
-    mp #1 with #2
+    mp #2 with #1
       obtain |- [a*][(a + b)*]p -> [a*][b*][(a + b)*]p
     inst Trans with a=[(a + b)*]p, b=[a*][(a + b)*]p, c=[a*][b*][(a + b)*]p
     mp #4 with unwindA

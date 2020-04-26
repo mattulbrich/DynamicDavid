@@ -93,7 +93,7 @@ proof
      obtain |- [moveO*](S1 -> [moveS]-S1) ->
                [moveO*]S1 -> [moveO*][moveS]-S1 as #8
                
-   mp #7 with #8
+   mp #8 with #7
      obtain S1 -> [moveS]-S1 |- [moveO*]S1 -> [moveO*][moveS]-S1 as MoveOS
 
    inst Trans with a=S1, b=[moveO*]S1, c=[moveO*][moveS]-S1

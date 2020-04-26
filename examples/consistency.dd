@@ -49,7 +49,7 @@ push -F from #7
 inst Ax5 with a=F
   obtain |- (-F -> F) -> F as #9
 
-mp #8 with #9
+mp #9 with #8
   obtain M -> -F -> G, M, M -> -F -> -G |- F as #10
 
 push M from #10

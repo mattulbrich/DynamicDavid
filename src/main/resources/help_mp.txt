@@ -1,5 +1,5 @@
 
-    mp <name> and <name>
+    mp [ inst ] <name> with <name>
     [ obtain <fact> ]
     [ as <name> ]
 
@@ -20,12 +20,18 @@ name.
 Example:
 
   Fact Fact1:
-    X, Y |- A -> B
+    X, Y |- A -> B -> A
   Fact Fact2:
     X, Z |- A
+  Fact Fact3:
+         |- p -> q
 
-> mp Fact1 and Fact2 as Result .
+> mp Fact1 with Fact2 as Result .
 
   Fact Result:
-    X, Y, Z |- B
+    X, Y, Z |- B -> A
 
+> mp inst Fact1 with Fact3 as MatchedResult .
+
+  Fact MatchedResult:
+    X. Y |- B -> p -> q

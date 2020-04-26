@@ -80,7 +80,7 @@ pop :
 mp :
   'mp' ( inst='inst' )?
   first=(ID | FORMULA_ID)
-  ('and' { System.out.println("('mp ... and ...' is deprecated and may be removed in feature versions. Use 'with' instead.)"); }| 'with')
+  ('and' { System.out.println("Deprecation warning: 'mp ... and ...' is deprecated and may be removed in feature versions. Use 'with' instead."); }| 'with')
   second=(ID | FORMULA_ID)
   ( 'obtain' obtain=fact )?
   ( 'as' name=(ID | FORMULA_ID) )?

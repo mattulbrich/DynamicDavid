@@ -13,7 +13,7 @@ proof
     obtain -a |- -b -> -a as #2
   inst Ax3 with a=b, b=a
     obtain |- (-b -> -a) -> a -> b as #3
-  mp #2 with #3
+  mp #3 with #2
     obtain -a |- a -> b as #4
   pop from #4
     obtain -a, a |- b as #5
@@ -50,7 +50,7 @@ proof
   inst Ax3 with b = a -> a
     obtain  |- (-a -> -(a -> a)) -> (a -> a) -> a as A5
 
-  mp A4 with A5
+  mp A5 with A4
     obtain -a -> a |- (a -> a) -> a as A6
 
   push a from self
