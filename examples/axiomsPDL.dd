@@ -29,6 +29,6 @@ assume [A*]p -> p as Unwind0
 assume [A*]p -> [A][A*]p as Unwind
 assume p -> [A][A*]p -> [A*]p as Wind
 
-% For completeness: <> and [] are dual
+% For completeness: <> with [] are dual
 assume <a>p -> -[a]-p as DualDiamond
 assume [a]p -> -<a>-p as DualBox

@@ -10,7 +10,7 @@ case class Config(verbose: Boolean = false,
 
 object Main {
 
-  def VERSION = "0.1"
+  def VERSION = "0.1.1"
 
   val BANNER: Any = "Dynamic David " + Main.VERSION + " - Interactive Hilbert Calculus for PDL\n" +
     "   see: https://github.com/mattulbrich/DynamicDavid"

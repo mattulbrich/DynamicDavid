@@ -285,7 +285,7 @@ class Interpreter {
     c2 match {
       case IMP(a, b) =>
         if(a equals c1) {
-          println("Deprecation warning: mp should first take the implication! This direction may be removed soon.")
+          println(s"Deprecation warning: ${mp.name.get}. mp should first take the implication! This direction may be removed soon.")
           putFact(mp.name.get, Fact(p, b), mp, mp.obtain)
           return
         }

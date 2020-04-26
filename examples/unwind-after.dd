@@ -1,0 +1,65 @@
+thm
+   [A*]p -> [A*][A]p
+as UnwindAfter
+proof
+
+  load "axiomsPDL.dd" unless Ind
+  load "self.dd" unless self
+  load "transitive.dd" unless Trans
+
+
+  thm
+    [A*](p -> [A]p) -> p -> [A*]p
+  as Ind2
+  proof
+    thm (a -> b -> c) -> b -> a -> c as SwapPremiss
+    proof
+      inst self with a=a->b->c
+      pop from #1
+      pop from #2
+      push a from #3
+      push b from #4 
+      push a->b->c from #5 as goal
+    end
+    mp inst SwapPremiss with Ind as goal
+  end
+  
+  inst Ind2 with p=[A*]p
+    obtain  |- [A*]([A*]p -> [A][A*]p) -> [A*]p -> [A*][A*]p as #1
+  
+  gen Unwind with A*
+    obtain  |- [A*]([A*]p -> [A][A*]p) as #2
+  
+  mp #1 with #2
+    obtain  |- [A*]p -> [A*][A*]p as #3
+
+  gen Unwind with A*
+    obtain  |- [A*]([A*]p -> [A][A*]p) as #4
+  
+  mp inst K with #4
+    obtain  |- [A*][A*]p -> [A*][A][A*]p as #5
+
+  mp inst Trans with #3
+    obtain  |- ([A*][A*]p -> c) -> [A*]p -> c as #6
+  
+  mp inst #6 with #5
+    obtain  |- [A*]p -> [A*][A][A*]p as #7
+
+  gen Unwind0 with A
+    obtain  |- [A]([A*]p -> p) as #8
+  
+  mp inst K with #8
+    obtain  |- [A][A*]p -> [A]p as #10
+  
+  gen #10 with A*
+    obtain  |- [A*]([A][A*]p -> [A]p) as #11
+  
+  mp inst K with #11
+    obtain  |- [A*][A][A*]p -> [A*][A]p as #12
+  
+  mp inst Trans with #7
+    obtain  |- ([A*][A][A*]p -> c) -> [A*]p -> c as #13
+  
+  mp inst #13 with #12 as goal
+
+end

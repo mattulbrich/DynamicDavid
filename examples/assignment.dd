@@ -1,0 +1,148 @@
+
+load "axiomsPDL.dd" unless Ind
+load "self.dd" unless self
+load "transitive.dd" unless Trans
+
+thm (a -> b -> c) -> b -> a -> c as SwapPremiss
+proof
+ inst self with a=a->b->c
+ pop from #1
+ pop from #2
+ push a from #3
+ push b from #4 
+ push a->b->c from #5 as goal
+end
+
+thm [A*](p -> [A]p) -> p -> [A*]p as Ind2
+proof
+  inst SwapPremiss with a=p, b=[A*](p -> [A]p), c=[A*]p
+    obtain  |- (p -> [A*](p -> [A]p) -> [A*]p) -> [A*](p -> [A]p) -> p -> [A*]p as #1
+
+  mp #1 with Ind
+    obtain  |- [A*](p -> [A]p) -> p -> [A*]p as goal
+end
+
+
+
+thm
+     p -> [A]p
+%  --------------
+  |- p -> [A*]p
+as InvariantRule
+proof
+
+
+  inst self with a=p->[A]p
+    obtain p -> [A]p |- p -> [A]p as #1
+
+  gen #1 with A*
+    obtain p -> [A]p |- [A*](p -> [A]p) as #2
+
+  mp #2 with Ind2
+    obtain p -> [A]p |- p -> [A*]p as goal
+end
+
+
+%%% [(α∪β)∗]p→[α∗;β∗]p
+
+thm
+    [(a+b)*]p -> [a*;b*]p
+as SerialFromChoice
+proof
+
+  thm [(a + b)*]p -> [b][(a + b)*]p as stepB
+  proof
+    inst Unwind with program A=a+b
+      obtain |- [(a + b)*]p -> [a + b][(a + b)*]p
+    inst ChoiceElim2 with program A=a, program B=b, p=[(a+b)*]p
+      obtain |- [a + b][(a + b)*]p -> [b][(a + b)*]p
+    inst Trans with
+        a = [(a + b)*]p,
+        b = [a + b][(a + b)*]p,
+        c = [b][(a + b)*]p
+      obtain
+        |- ([(a + b)*]p -> [a + b][(a + b)*]p) ->
+          ([a + b][(a + b)*]p -> [b][(a + b)*]p) ->
+            [(a + b)*]p -> [b][(a + b)*]p
+    mp #3 with #1
+    mp #4 with #2 as goal
+  end
+
+  thm [(a + b)*]p -> [b*][(a + b)*]p as unwindB
+  proof
+    gen stepB with b*
+    inst Ind2 with p=[(a+b)*]p, program A=b
+      obtain |- [b*]([(a + b)*]p -> [b][(a + b)*]p) -> [(a + b)*]p -> [b*][(a + b)*]p
+    mp #1 with #2
+      obtain |- [(a + b)*]p -> [b*][(a + b)*]p as goal
+  end
+
+  thm [(a + b)*]p -> [a][(a + b)*]p as stepA
+  proof
+    inst Unwind with program A=a+b
+      obtain |- [(a + b)*]p -> [a + b][(a + b)*]p
+    inst ChoiceElim1 with program A=a, program B=b, p=[(a+b)*]p
+      obtain |- [a + b][(a + b)*]p -> [a][(a + b)*]p
+    inst Trans with
+        a = [(a + b)*]p,
+        b = [a + b][(a + b)*]p,
+        c = [a][(a + b)*]p
+      obtain
+        |- ([(a + b)*]p -> [a + b][(a + b)*]p) ->
+          ([a + b][(a + b)*]p -> [a][(a + b)*]p) ->
+            [(a + b)*]p -> [a][(a + b)*]p
+    mp #3 with #1
+    mp #4 with #2 as goal
+  end
+
+  thm [(a + b)*]p -> [a*][(a + b)*]p as unwindA
+  proof
+    gen stepA with a*
+    inst Ind2 with p=[(a+b)*]p, program A=a
+      obtain |- [a*]([(a + b)*]p -> [a][(a + b)*]p) -> [(a + b)*]p -> [a*][(a + b)*]p
+    mp #1 with #2
+      obtain |- [(a + b)*]p -> [a*][(a + b)*]p as goal
+  end
+
+  thm [(a + b)*]p -> [a*][b*][(a + b)*]p as serial
+  proof
+    gen unwindB with a*
+      obtain |- [a*]([(a + b)*]p -> [b*][(a + b)*]p)
+    inst K with program A=a*, p=[(a + b)*]p, q=[b*][(a + b)*]p
+      obtain |- [a*]([(a + b)*]p -> [b*][(a + b)*]p) ->
+                [a*][(a + b)*]p -> [a*][b*][(a + b)*]p
+    mp #1 with #2
+      obtain |- [a*][(a + b)*]p -> [a*][b*][(a + b)*]p
+    inst Trans with a=[(a + b)*]p, b=[a*][(a + b)*]p, c=[a*][b*][(a + b)*]p
+    mp #4 with unwindA
+    mp #5 with #3 as goal
+  end
+
+  thm [(a + b)*]p -> [a* ; b*][(a + b)*]p as almost
+  proof
+    inst SeqIntro with program A=a*, program B=b*, p=[(a+b)*]p
+      obtain |- [a*][b*][(a + b)*]p -> [a* ; (b*)][(a + b)*]p
+
+    inst Trans with a=[(a + b)*]p, b=[a*][b*][(a + b)*]p, c=[a* ; b*][(a + b)*]p 
+      obtain  |- ([(a + b)*]p -> [a*][b*][(a + b)*]p) ->
+                   ([a*][b*][(a + b)*]p -> [a* ; b*][(a + b)*]p) ->
+                     [(a + b)*]p -> [a* ; b*][(a + b)*]p
+    mp #2 with serial
+    mp #3 with #1 as goal
+  end
+
+  thm [(a + b)*]p -> [a* ; b*]p as goal
+  proof
+    inst Unwind0 with program A=(a + b)
+      obtain |- [(a + b)*]p -> p
+    gen #1 with a* ; b*
+      obtain  |- [a* ; b*]([(a + b)*]p -> p)
+    inst K with program A=a*;b*, p=[(a + b)*]p, q=p
+    mp #3 with #2
+      obtain |- [a* ; b*][(a + b)*]p -> [a* ; b*]p as A1
+
+    inst Trans with a=[(a+b)*]p, b=[a*;b*][(a+b)*]p, c=[a*;b*]p
+    mp #4 with almost
+    mp #5 with A1 as goal
+  end
+end

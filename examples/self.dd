@@ -1,9 +1,23 @@
+% Input file for Dynamic David
+%
+% This is the implication of "a->a" as a theorem with premiss.
+%
+
 thm a |- a as self
 proof
   load "axioms.dd" unless Ax1
-  inst Ax2 with b=b->a, c=a as E1
-  inst Ax1 with b=b->a as E2
-  mp E1 and E2 as E3
-  mp Ax1 and E3 as E4
+
+  inst Ax2 with b=b -> a, c=a
+    obtain  |- (a -> (b -> a) -> a) -> (a -> b -> a) -> a -> a as E1
+  
+  inst Ax1 with b=b -> a
+    obtain  |- a -> (b -> a) -> a as E2
+  
+  mp E1 with E2
+    obtain  |- (a -> b -> a) -> a -> a as E3
+  
+  mp E3 with Ax1
+    obtain  |- a -> a as E4
+  
   pop from E4 as goal
 end

@@ -22,7 +22,7 @@ proof
   inst K with p=S1, q=[moveS]-S1, program A=moveO
     obtain  |- [moveO](S1 -> [moveS]-S1) -> [moveO]S1 -> [moveO][moveS]-S1 as #6
     
-  mp #6 and #5
+  mp #6 with #5
     obtain S1 -> [moveS]-S1 |- [moveO]S1 -> [moveO][moveS]-S1 as #7
 
   inst Trans with a=S1, b=[moveO]S1, c=[moveO][moveS]-S1
@@ -31,16 +31,16 @@ proof
   pop from #8
     obtain S1 -> [moveO]S1 |- ([moveO]S1 -> [moveO][moveS]-S1) -> S1 -> [moveO][moveS]-S1 as #9
   
-  mp #9 and #7
+  mp #9 with #7
     obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |- S1 -> [moveO][moveS]-S1 as #10
   
   inst Trans with a=S1, b=[moveO][moveS]-S1, c=[moveO ; moveS]-S1
     obtain  |- (S1 -> [moveO][moveS]-S1) -> ([moveO][moveS]-S1 -> [moveO ; moveS]-S1) -> S1 -> [moveO ; moveS]-S1 as #11
     
-  mp #11 and #10
+  mp #11 with #10
     obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |- ([moveO][moveS]-S1 -> [moveO ; moveS]-S1) -> S1 -> [moveO ; moveS]-S1 as #12
     
-  mp #12 and #4
+  mp #12 with #4
     obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |- S1 -> [moveO ; moveS]-S1 as goal
 end
 
@@ -68,7 +68,7 @@ proof
       obtain  |- (p -> [A*](p -> [A]p) -> [A*]p) ->
                  [A*](p -> [A]p) -> p -> [A*]p as #1
      
-   mp #1 and Ind
+   mp #1 with Ind
      obtain  |- [A*](p -> [A]p) -> p -> [A*]p as Ind2
 
    inst self with a = S1 -> [moveO]S1
@@ -80,7 +80,7 @@ proof
    inst Ind2 with program A=moveO, p=S1
      obtain  |- [moveO*](S1 -> [moveO]S1) -> S1 -> [moveO*]S1 as #4
    
-   mp #4 and #3
+   mp #4 with #3
      obtain S1 -> [moveO]S1 |- S1 -> [moveO*]S1 as IndMoveO 
 
    inst self with a=S1 -> [moveS]-S1
@@ -93,7 +93,7 @@ proof
      obtain |- [moveO*](S1 -> [moveS]-S1) ->
                [moveO*]S1 -> [moveO*][moveS]-S1 as #8
                
-   mp #7 and #8
+   mp #7 with #8
      obtain S1 -> [moveS]-S1 |- [moveO*]S1 -> [moveO*][moveS]-S1 as MoveOS
 
    inst Trans with a=S1, b=[moveO*]S1, c=[moveO*][moveS]-S1
@@ -101,11 +101,11 @@ proof
                 ([moveO*]S1 -> [moveO*][moveS]-S1) ->
                 S1 -> [moveO*][moveS]-S1 as #9
                 
-   mp #9 and IndMoveO
+   mp #9 with IndMoveO
      obtain S1 -> [moveO]S1 |- ([moveO*]S1 -> [moveO*][moveS]-S1) ->
                                S1 -> [moveO*][moveS]-S1   as #10
                                
-   mp #10 and MoveOS
+   mp #10 with MoveOS
      obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |-
                S1 -> [moveO*][moveS]-S1 as Nested
 
@@ -117,12 +117,12 @@ proof
                  ([moveO*][moveS]-S1 -> [moveO* ; moveS]-S1) ->
                  S1 -> [moveO* ; moveS]-S1  as #12
                  
-   mp #12 and Nested
+   mp #12 with Nested
       obtain S1 -> [moveO]S1, S1 -> [moveS]-S1 |-
           ([moveO*][moveS]-S1 -> [moveO* ; moveS]-S1) ->
           S1 -> [moveO* ; moveS]-S1 as #13
           
-   mp #13 and #11 as goal
+   mp #13 with #11 as goal
 
    fact goal with proof
 end

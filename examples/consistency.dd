@@ -2,7 +2,7 @@
 % Input file for Dynamic David
 %
 % Proof that
-%   If M \/ {-F} is inconsistent (e.i. G and -G can be derived),
+%   If M \/ {-F} is inconsistent (e.i. G with -G can be derived),
 %   then M |- F.
 %
 
@@ -37,10 +37,10 @@ pop from #4
 pop from #5
   obtain M -> -F -> -G, M, -F |- -G as negG
 
-mp #1 and G
+mp #1 with G
   obtain M -> -F -> G, M, -F |- -G -> F as #6
 
-mp #6 and negG
+mp #6 with negG
   obtain M -> -F -> G, M, -F, M -> -F -> -G |- F as #7
 
 push -F from #7
@@ -49,7 +49,7 @@ push -F from #7
 inst Ax5 with a=F
   obtain |- (-F -> F) -> F as #9
 
-mp #8 and #9
+mp #8 with #9
   obtain M -> -F -> G, M, M -> -F -> -G |- F as #10
 
 push M from #10
