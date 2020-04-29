@@ -126,7 +126,7 @@ object Printer {
         s"inst $id with ${varMap(mapFormula, mapProgram)}" +
           s"${obt(obtain)}${nam(name)}"
       case THM(name, fact, proof) => s"thm $fact as $name (proof omitted)"
-      case MP(name, inst, fst, snd, obtain) => s"mp${if(inst) " inst" else ""} $fst and $snd${obt(obtain)}${nam(name)}"
+      case MP(name, inst, fst, snd, obtain) => s"mp${if(inst) " inst" else ""} $fst with $snd${obt(obtain)}${nam(name)}"
       case GEN(name, id, prog, obtain) => s"gen $id with $prog${obt(obtain)}${nam(name)}"
       case QUIT() => "quit (error)"
     }

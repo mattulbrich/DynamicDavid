@@ -24,6 +24,7 @@ import java.io._
 import java.nio.file.{NoSuchFileException, Paths}
 
 import edu.kit.iti.hilbert.parser.HilbertParsers
+import org.jline.reader.{EndOfFileException, LineReaderBuilder, UserInterruptException}
 
 import scala.collection.mutable
 import scala.io.Source
@@ -196,7 +197,7 @@ class Interpreter {
 
   }
 
-  def matchFormula(a: Formula, b: Formula) = {
+  private def matchFormula(a: Formula, b: Formula) = {
 
     val mapFormula: mutable.Map[String, Formula] = mutable.Map()
     val mapProgram: mutable.Map[String, Program] = mutable.Map()
@@ -269,7 +270,7 @@ class Interpreter {
           val m = matchFormula(a, c2) : Option[(Map[String, Formula], Map[String, Program])]
           if(m.isDefined) {
             def I(f:Formula) = instantiate(f, m.get._1, m.get._2)
-            val instP = fst.get.premiss union (snd.get.premiss map I)
+            val instP = (fst.get.premiss map I) union snd.get.premiss
             putFact(mp.name.get, Fact(instP, I(b)), mp, mp.obtain)
             return
           }
@@ -476,7 +477,7 @@ object Interpreter {
   }
 
   /**
-    * Interactive command loop with a prompt and error
+    * Interactive command loop with a simple prompt and error reporting
     */
   def commandLoop: Unit = {
     val command = new StringBuilder
@@ -502,6 +503,35 @@ object Interpreter {
       } else {
         command ++= line
         command ++= "\n"
+      }
+    }
+  }
+
+  /**
+    * Interactive command loop with a prompt and error
+    */
+  def commandLoopJLine: Unit = {
+    val command = new StringBuilder
+    val interpreter = new Interpreter
+    val reader = LineReaderBuilder.builder().build();
+    println("  Type 'help.' for instructions.")
+    println
+    while(true) {
+      try {
+        var line = reader.readLine("> ").trim()
+        if (line endsWith ".") {
+          command ++= line.substring(0, line.length - 1)
+          println
+          doCommand(command, interpreter)
+          command.clear()
+          println
+        } else {
+          command ++= line
+          command ++= "\n"
+        }
+      } catch {
+        case ex: UserInterruptException => ex.printStackTrace()
+        case ex: EndOfFileException => return
       }
     }
   }

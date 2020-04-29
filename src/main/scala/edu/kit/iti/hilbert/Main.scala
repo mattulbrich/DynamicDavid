@@ -6,11 +6,12 @@ case class Config(verbose: Boolean = false,
                   checkObtain: String = "warn",
                   directory: String = ".",
                   file: Option[String] = None,
-                  jupyter: Boolean = false)
+                  jupyter: Boolean = false,
+                  simpleCLI: Boolean = false)
 
 object Main {
 
-  def VERSION = "0.1.1"
+  def VERSION = "0.1.2"
 
   val BANNER: Any = "Dynamic David " + Main.VERSION + " - Interactive Hilbert Calculus for PDL\n" +
     "   see: https://github.com/mattulbrich/DynamicDavid"
@@ -37,6 +38,10 @@ object Main {
       opt[Unit]('j', "jupyter")
         .text("act as jupyter notebook kernel")
         .action((x, c) => c.copy(jupyter = true))
+
+      opt[Unit]('s', "simpleCLI")
+        .text("use simple CLI interface (not JLine)")
+        .action((x, c) => c.copy(simpleCLI = true))
 
       help("help").text("prints this usage text")
 
@@ -65,8 +70,10 @@ object Main {
           Interpreter.interpretFile(config.file.get)
         else if(config.jupyter)
           Interpreter.jupityerLoop
-        else
+        else if(config.simpleCLI)
           Interpreter.commandLoop
+        else
+          Interpreter.commandLoopJLine
 
       case None =>
         sys.exit(1)

@@ -1,0 +1,113 @@
+load "axioms.dd" unless Ax1
+load "axioms2.dd" unless Ax4
+
+thm
+  --a -> a
+as doubleNegElim
+proof
+  inst Ax1 with a=--a, b=-a
+    obtain  |- --a -> -a -> --a as #1
+
+  pop from #1
+    obtain --a |- -a -> --a as #2
+  
+  mp inst Ax3 with #2
+    obtain --a |- -a -> a as #3
+  
+  mp inst Ax5 with #3
+    obtain --a |- a as #4
+  
+  push --a from #4
+    obtain  |- --a -> a as goal
+end
+
+thm
+  a -> --a
+as doubleNegIntro
+proof
+  inst doubleNegElim with a=-a
+    obtain  |- ---a -> -a as #1
+
+  mp inst Ax3 with #1
+    obtain  |- a -> --a as goal
+end
+
+thm
+   |- (a->b) -> -b -> -a
+as modusTollens
+proof
+  load "self.dd" unless self
+  load "transitive.dd" unless Trans
+
+  inst self with a=a -> b
+    obtain a -> b |- a -> b as #1
+
+  mp inst Trans with doubleNegElim
+    obtain  |- (a -> c) -> --a -> c as #2
+
+  mp inst #2 with #1
+    obtain a -> b |- --a -> b as #3
+
+  inst doubleNegIntro with a=b
+    obtain  |- b -> --b as #4
+
+  mp inst Trans with #3
+    obtain a -> b |- (b -> c) -> --a -> c as #5
+  
+  mp inst #5 with #4
+    obtain a -> b |- --a -> --b as #6
+  
+  mp inst Ax3 with #6
+    obtain a -> b |- -b -> -a as #7
+
+  push a->b from #7 as goal
+  
+end
+
+thm
+  (p->x) -> (-p->x) -> x
+as cases
+proof
+
+  thm
+    -x |- (-p -> x) -> p
+  as T0
+  proof
+  
+    inst modusTollens with a=-p, b=x
+      obtain  |- (-p -> x) -> -x -> --p as #1
+    
+    pop from #1
+      obtain -p -> x |- -x -> --p as #2
+    
+    pop from #2
+      obtain -p -> x, -x |- --p as #3
+    
+    mp inst doubleNegElim and #3
+      obtain -p -> x, -x |- p as #4
+    
+    push -p -> x from #4
+      obtain -x |- (-p -> x) -> p as goal   
+  end
+    
+  thm -x, p -> x |- -(-p -> x) as T1
+  proof
+    inst modusTollens with a=p, b=x as #3
+    pop from #3 as #4
+    pop from #4 as #5
+    mp inst modusTollens with T0 as #6
+    mp #6 with #5 as goal
+  end
+  
+  clear
+  
+  push -x from T1
+    obtain p -> x |- -x -> -(-p -> x) as #2
+  
+  mp inst Ax3 with #2
+    obtain p -> x |- (-p -> x) -> x as #3
+  
+  push p -> x from #3
+    obtain  |- (p -> x) -> (-p -> x) -> x as goal
+
+end
