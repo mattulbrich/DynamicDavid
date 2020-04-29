@@ -40,7 +40,26 @@ command :
   | gen
   | assume
   | controls
+  | scriptdef
+  | scriptcall
   ;
+
+scriptdef :
+  'script' SCRIPTID CODEBLOCK
+  ;
+
+scriptcall :
+  SCRIPTID ( direct=formula )?
+  (
+    'with'
+      ( vars+=ID '=' exps+=formula | 'program' progvars+=ID '=' progs+=program)
+       ( ',' ( vars+=ID '=' exps+=formula | 'program' progvars+=ID '=' progs+=program)
+      )*
+  )
+  ( 'obtain' obtain=fact )?
+  ( 'as' name=(ID | FORMULA_ID) )?
+  ;
+
 
 controls :
     'facts' # ShowFacts
@@ -52,7 +71,6 @@ controls :
   | 'load' STRING_LIT ( 'unless' ID )? # Load
   | 'set' name=ID '=' value=(ID|STRING_LIT) # Set
   ;
-
 
 instantiate :
   'inst' id=(ID | FORMULA_ID)
@@ -128,7 +146,11 @@ program :
   ;
 
 ID  : [A-Za-z_][A-Za-z0-9$_]* ;
+SCRIPTID : '$' ID ;
 WS : [ \t\r\n]+ -> skip ;
 COMMENT : '%' .*? '\n' -> skip ;
 FORMULA_ID : '#' [0-9]+ ;
 STRING_LIT : '"' .*? '"' ;
+
+CODEBLOCK : '[{' .*? '}]' ;
+

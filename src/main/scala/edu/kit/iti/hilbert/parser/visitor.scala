@@ -149,6 +149,20 @@ object ScalaVisitor extends HilbertBaseVisitor[AST] {
   override def visitLoad(ctx: HilbertParser.LoadContext): LOAD =
     LOAD(ctx.STRING_LIT().getText, Option(ctx.ID).map(_.getText))
 
+  override def visitScriptdef(ctx: HilbertParser.ScriptdefContext): SCRIPTDEF =
+    SCRIPTDEF(ctx.SCRIPTID.getText, ctx.CODEBLOCK.getText)
+
+
+  override def visitScriptcall(ctx: HilbertParser.ScriptcallContext): SCRIPT = {
+    val vars = for(v <- asScalaBuffer(ctx.vars)) yield v.getText
+    val exps = for(e <- asScalaBuffer(ctx.exps)) yield e.accept(this).asInstanceOf[Formula]
+    val pvars = for(v <- asScalaBuffer(ctx.progvars)) yield v.getText
+    val progs = for(p <- asScalaBuffer(ctx.progs)) yield p.accept(this).asInstanceOf[Program]
+    SCRIPT(Option(ctx.ID).map(_.getText), ctx.SCRIPTID.getText,
+      (vars zip exps).toMap, (pvars zip progs).toMap,
+      Option(ctx.obtain).map(_.accept(this).asInstanceOf[Fact]) )
+  }
+
   override def visitPop(ctx: HilbertParser.PopContext): POP =
     POP(Option(ctx.name).map(_.getText), ctx.id.getText,
       Option(ctx.obtain).map(_.accept(this).asInstanceOf[Fact]))

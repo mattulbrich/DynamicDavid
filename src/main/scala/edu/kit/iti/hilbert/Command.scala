@@ -47,6 +47,8 @@ case class POP(name: Option[String], id: String, obtain: Option[Fact]) extends N
 case class MP(name: Option[String], inst: Boolean, fst: String, snd: String, obtain: Option[Fact]) extends NamingCommand(name)
 case class GEN(name: Option[String], id: String, prog: Program, obtain: Option[Fact]) extends NamingCommand(name)
 case class THM(name: String, fact: Fact, proof: Seq[Command]) extends NamingCommand(Some(name))
+case class SCRIPT(name: Option[String], scriptName: String, mapFormula: Map[String, Formula],
+                  mapProgram: Map[String, Program], obtain: Option[Fact]) extends NamingCommand(name)
 
 case class LOAD(file: String, unless: Option[String]) extends Command
 case class QUIT() extends Command
@@ -54,6 +56,7 @@ case class CLEAR(name: Option[String]) extends Command
 case class PRINT_FACT(name: Option[String], withProof: Boolean) extends Command
 case class HELP(name: Option[String]) extends Command
 case class SET(property: String, value: String) extends Command
+case class SCRIPTDEF(name: String, code: String) extends Command
 
 case class VARIABLE(name: String) extends Formula
 case class IMP(premiss: Formula, conclusion: Formula) extends Formula

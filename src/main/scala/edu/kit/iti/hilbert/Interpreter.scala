@@ -28,6 +28,7 @@ import edu.kit.iti.hilbert.parser.HilbertParsers
 import scala.collection.mutable
 import scala.io.Source
 import scala.util.matching.Regex
+import javax.script.ScriptEngineManager
 
 class Interpreter {
 
@@ -55,6 +56,8 @@ class Interpreter {
       case x : PRINT_FACT => printFact(x)
       case x : CLEAR => clear(x)
       case x : SET => setOption(x)
+      case x : SCRIPT => Scripts.callScript(x, this)
+      case x : SCRIPTDEF => Scripts.defineScript(x)
       case HELP(subcommand) => help(subcommand)
       case QUIT() => System.exit(0)
     }
